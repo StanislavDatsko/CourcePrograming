@@ -46,3 +46,4 @@ package-lock.json
 # Optional: build artifacts
 *.zip
 *.tar.gz
+serviceAccountKey.json
