@@ -1,0 +1,254 @@
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import "../assets/css/style.css";
+import Cards from "../components/Cards";
+import ProgressBar from "../components/ProgressBar";
+
+import course1 from "../assets/img/course-1.jpeg";
+import course2 from "../assets/img/course-2.png";
+import course3 from "../assets/img/course-3.png";
+import course4 from "../assets/img/course-4.jpeg";
+import course5 from "../assets/img/course-5.jpeg";
+import course6 from "../assets/img/course-6.jpeg";
+import course7 from "../assets/img/course-7.jpeg";
+import course8 from "../assets/img/course-8.jpeg";
+
+function Index() {
+    const [completedCoursesCount, setCompletedCoursesCount] = useState(0);
+    const [courses, setCourses] = useState([
+        {
+            id: 1,
+            name: "Основи програмування",
+            duration: 6,
+            category: "Programming",
+            image: course1,
+            instructor: "Іван Петренко"
+        },
+        {
+            id: 2,
+            name: "JavaScript для початківців",
+            duration: 8,
+            category: "Programming",
+            image: course2,
+            instructor: "Олена Іванова"
+        },
+        {
+            id: 3,
+            name: "Основи Python",
+            duration: 5,
+            category: "Programming",
+            image: course3,
+            instructor: "Максим Коваль"
+        },
+        {
+            id: 4,
+            name: "Web-розробка",
+            duration: 7,
+            category: "Web Development",
+            image: course4,
+            instructor: "Андрій Шевченко"
+        },
+        {
+            id: 5,
+            name: "Алгоритми та структури даних",
+            duration: 6,
+            category: "Programming",
+            image: course5,
+            instructor: "Вікторія Ткаченко"
+        },
+        {
+            id: 6,
+            name: "Розробка мобільних додатків",
+            duration: 10,
+            category: "Mobile Development",
+            image: course6,
+            instructor: "Олексій Мельник"
+        },
+        {
+            id: 7,
+            name: "Аналіз даних з Python",
+            duration: 9,
+            category: "Data Science",
+            image: course7,
+            instructor: "Артем Кравченко"
+        },
+        {
+            id: 8,
+            name: "Інтернет речей (IoT)",
+            duration: 12,
+            category: "IoT",
+            image: course8,
+            instructor: "Микола Довженко"
+        }
+    ]);
+    const [filteredCourses, setFilteredCourses] = useState(courses);
+    const [selectedCategory, setSelectedCategory] = useState("");
+
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, "courses"));
+                const coursesList = querySnapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+                setCourses(coursesList);
+                setFilteredCourses(coursesList);
+            } catch (error) {
+                console.error("Помилка отримання курсів: ", error);
+            }
+        };
+    
+        fetchCourses();
+    }, []);
+
+    const restoreCoursesFromLocalStorage = () => {
+        const savedOrder = JSON.parse(localStorage.getItem("courseOrder"));
+        const completedCourses = JSON.parse(localStorage.getItem("completedCourses"));
+
+        if (savedOrder && savedOrder.length > 0) {
+            const coursesContainer = document.querySelector(".course-grid");
+            savedOrder.forEach((id) => {
+                const course = document.querySelector(`.course[data-id='${id}']`);
+                if (course) {
+                    coursesContainer.appendChild(course);
+                }
+            });
+        }
+
+        if (completedCourses && completedCourses.length > 0) {
+            setCompletedCoursesCount(completedCourses.length);
+            completedCourses.forEach((id) => {
+                const course = document.querySelector(`.course[data-id='${id}']`);
+                if (course) {
+                    course.classList.add("completed");
+                    course.style.backgroundColor = "#8BC34A";
+                    course.style.color = "white";
+                    if (!course.querySelector(".completed-text")) {
+                        const completedText = document.createElement("p");
+                        completedText.classList.add("completed-text");
+                        completedText.innerHTML = "<strong>Пройдено</strong>";
+                        course.appendChild(completedText);
+                    }
+                }
+            });
+        }
+    };
+
+    const restoreProgressFromLocalStorage = () => {
+        const savedProgress = localStorage.getItem("progress");
+        if (savedProgress) {
+            const globalProgressBar = document.getElementById("global-progress");
+            if (globalProgressBar) {
+                globalProgressBar.style.width = savedProgress + "%";
+            }
+        }
+    };
+
+    const handleStartCourse = (course) => {
+        const coursesContainer = document.querySelector(".course-grid");
+        coursesContainer.prepend(course);
+        saveCourseOrder();
+    };
+
+    const handleCompleteCourse = (course) => {
+        if (!course.classList.contains("completed")) {
+            course.classList.add("completed");
+            course.style.backgroundColor = "#8BC34A";
+            course.style.color = "white";
+            if (!course.querySelector(".completed-text")) {
+                const completedText = document.createElement("p");
+                completedText.classList.add("completed-text");
+                completedText.innerHTML = "<strong>Пройдено</strong>";
+                course.appendChild(completedText);
+            }
+            saveCompletedCourses();
+            updateGlobalProgress();
+        }
+    };
+
+    const saveCourseOrder = () => {
+        const coursesContainer = document.querySelector(".course-grid");
+        const courseIds = [...coursesContainer.children].map((course) => course.dataset.id);
+        localStorage.setItem("courseOrder", JSON.stringify(courseIds));
+    };
+
+    const saveCompletedCourses = () => {
+        const completedCourses = [...document.querySelectorAll(".course.completed")].map((course) => course.dataset.id);
+        localStorage.setItem("completedCourses", JSON.stringify(completedCourses));
+        setCompletedCoursesCount(completedCourses.length);
+    };
+
+    const updateGlobalProgress = () => {
+        const totalCourses = document.querySelectorAll(".course").length;
+        const progressPercent = (completedCoursesCount / totalCourses) * 100;
+        const globalProgressBar = document.getElementById("global-progress");
+        if (globalProgressBar) {
+            globalProgressBar.style.width = progressPercent + "%";
+            localStorage.setItem("progress", progressPercent);
+        }
+    };
+
+    const handleSortCourses = () => {
+        const sortedCourses = [...courses].sort((a, b) => a.duration - b.duration);
+        setCourses(sortedCourses);
+        setFilteredCourses(sortedCourses);
+    };
+
+    const handleCategoryChange = (e) => {
+        setSelectedCategory(e.target.value);
+        if (e.target.value === "") {
+            setFilteredCourses(courses);
+        } else {
+            const filtered = courses.filter((course) => course.category === e.target.value);
+            setFilteredCourses(filtered);
+        }
+    };
+
+    return (
+        <div>
+            <header>
+                <nav>
+                    <ul>
+                        <li><Link to="/">Курси</Link></li>
+                        <li><Link to="/shedule">Розклад занять</Link></li>
+                        <li><Link to="/myCabinet">Мій кабінет</Link></li>
+                    </ul>
+                </nav>
+            </header>
+
+            <main>
+                <section id="courses">
+                    <h2 className="courses-title">Доступні курси</h2>
+                    <div>
+                        <button className="sort-button" onClick={handleSortCourses}>Сортувати за тривалістю</button>
+                        <select onChange={handleCategoryChange} value={selectedCategory}>
+                            <option value="">Всі категорії</option>
+                            <option value="Programming">Програмування</option>
+                            <option value="Web Development">Web-розробка</option>
+                            <option value="Mobile Development">Мобільна розробка</option>
+                            <option value="Data Science">Аналіз даних</option>
+                            <option value="IoT">Інтернет речей</option>
+                        </select>
+                    </div>
+
+                    {/* Прогрес-бар */}
+                    <ProgressBar completedCoursesCount={completedCoursesCount} totalCourses={courses.length} />
+
+                    <Cards courses={filteredCourses} handleStartCourse={handleStartCourse} handleCompleteCourse={handleCompleteCourse} />
+                </section>
+
+                
+
+            </main>
+        
+
+            <footer>
+                <p>Контакти: stasdatsko04@gmail.com | Телефон: +380675956332</p>
+            </footer>
+            
+        </div>
+    );
+}
+
+export default Index;
