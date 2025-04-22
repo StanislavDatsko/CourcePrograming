@@ -1,0 +1,48 @@
+# Node modules
+node_modules/
+
+# Vite / build
+dist/
+.vite/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env variables
+.env
+.env.local
+.env.*.local
+
+# OS-specific
+.DS_Store
+
+# VSCode
+.vscode/
+
+# JetBrains IDEs
+.idea/
+
+# Mac system files
+*.DS_Store
+
+# Firebase emulators
+firebase-debug.log
+.firebaserc
+
+# Testing
+coverage/
+
+# Build output
+*.log
+*.tgz
+
+# Optional lockfiles
+package-lock.json
+# Or if using yarn:
+# yarn.lock
+
+# Optional: build artifacts
+*.zip
+*.tar.gz
