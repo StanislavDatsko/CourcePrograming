@@ -1,9 +1,7 @@
 # Node modules
 node_modules/
 
-# Vite / build
-dist/
-.vite/
+
 
 # Logs
 npm-debug.log*
@@ -47,4 +45,4 @@ package-lock.json
 *.zip
 *.tar.gz
 serviceAccountKey.json
-serviceAccountKey.json
+

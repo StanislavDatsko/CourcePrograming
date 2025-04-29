@@ -173,5 +173,4 @@ server.on('close', () => {
     console.log('❌ Server was closed');
 });
 
-// Утримує процес Node.js активним (тимчасово, поки не буде інших активних потоків)
 process.stdin.resume();
