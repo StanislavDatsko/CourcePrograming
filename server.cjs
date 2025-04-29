@@ -158,7 +158,7 @@ app.get('/api/users/:id', async (req, res) => {
 });
 
 // Хостинг статики (після білду клієнта)
-const distPath = path.join(__dirname, 'my-app', 'dist');
+const distPath = path.join(__dirname, 'dist');
 if (fs.existsSync(distPath)) {
     app.use(express.static(distPath));
     app.get(/^\/(?!api).*/, (req, res) => {
