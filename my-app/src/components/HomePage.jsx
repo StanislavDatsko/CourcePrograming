@@ -21,6 +21,7 @@ function Index() {
     const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
     const [startedCourses, setStartedCourses] = useState([]);
     const [completedCourses, setCompletedCourses] = useState([]);
+    const [reviewError, setReviewError] = useState("");
 
     useEffect(() => {
         if (user) {
@@ -167,6 +168,14 @@ function Index() {
 
     const handleReviewSubmit = async (e) => {
         e.preventDefault();
+
+        if (/поган/i.test(reviewText)) {
+            setReviewError("Відгук містить заборонене слово.");
+            return;
+        } else {
+            setReviewError("");
+        }
+
         try {
             console.log("📤 Надсилаємо POST відгук:", {
                 courseId: courseName,
@@ -291,6 +300,7 @@ function Index() {
                                 onChange={(e) => setReviewText(e.target.value)}
                                 required
                             />
+                            {reviewError && <p style={{ color: 'red' }}>{reviewError}</p>}
                             <button type="submit">Надіслати</button>
                         </form>
                     </section>

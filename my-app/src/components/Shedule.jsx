@@ -172,3 +172,5 @@ function Shedule() {
 }
 
 export default Shedule;
+
+// Commit: Add schedule table rendering in Shedule component
